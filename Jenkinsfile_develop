@@ -13,12 +13,17 @@ pipeline {
         }
         stage('Run Container') {
             steps {
-                sh 'docker run -d -p 8082:80 --name develop-container my-static-website'
+                sh '''
+                docker ps -q --filter "my-static-website" | xargs -r docker stop
+                docker ps -aq --filter "my-static-website" | xargs -r docker rm
+                docker run -d -p 8081:80 --name my-static-website my-static-website
+                '''
+
             }
         }
         stage('Test') {
             steps {
-                sh 'curl -I localhost:8082'
+                sh 'curl -I localhost:8081'
             }
         }
         stage('Tag and Push Image') {
@@ -31,12 +36,12 @@ pipeline {
 
                         // Tag the image with the correct namespace and repo name
                         def buildId = env.BUILD_ID ?: "local"
-                        sh 'docker tag my-static-website docker.io/prabhdeep420/my-static-website:latest'
-                        sh "docker tag my-static-website docker.io/prabhdeep420/my-static-website:develop-${buildId}"
+                        sh 'docker tag my-static-website docker.io/hargun1955991532/my-static-website:latest'
+                        sh "docker tag my-static-website docker.io/hargun1955991532/my-static-website:develop-${buildId}"
 
                         // Push the image to Docker Hub (repository will be auto-created)
-                        sh 'docker push docker.io/prabhdeep420/my-static-website:latest'
-                        sh "docker push docker.io/prabhdeep420/my-static-website:develop-${buildId}"
+                        sh 'docker push docker.io/hargun1955991532/my-static-website:latest'
+                        sh "docker push docker.io/hargun1955991532/my-static-website:develop-${buildId}"
                     }
                 }
             }
