@@ -23,7 +23,7 @@ pipeline {
                     docker rm my-static-website || true
                     
                     # Run a new container
-                    docker run -d -p 8082:80 --name master-container my-static-website:latest
+                    docker run -d -p 8082:80 --name mastera-container my-static-website:latest
 
                     '''
                 }
